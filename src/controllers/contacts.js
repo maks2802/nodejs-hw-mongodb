@@ -33,13 +33,14 @@ export const getAllContactsController = async (req, res) => {
 
 export const getContactByIdController = async (req, res) => {
   const { contactId } = req.params;
-  const contact = await getContactById(contactId);
+  const { _id: userId } = req.user;
+  const contact = await getContactById(contactId, userId);
 
   if (!contact) {
     throw createHttpError(404, 'Contact not found');
   }
 
-  if (contact.userId.toString() !== req.user._id.toString()) {
+  if (contact.userId.toString() !== userId.toString()) {
     throw createHttpError(403, 'Contact is not allowed');
   }
 
@@ -65,14 +66,15 @@ export const createContactController = async (req, res) => {
 
 export const patchContactController = async (req, res) => {
   const { contactId } = req.params;
+  const { _id: userId } = req.user;
   const contact = req.body;
-  const result = await updateContact(contactId, contact);
+  const result = await updateContact(contactId, userId, contact);
 
   if (!result) {
     throw createHttpError(404, 'Contact not found');
   }
 
-  if (contact.userId.toString() !== req.user._id.toString()) {
+  if (result.contact.userId.toString() !== userId.toString()) {
     throw createHttpError(403, 'Contact is not allowed');
   }
 
@@ -85,13 +87,14 @@ export const patchContactController = async (req, res) => {
 
 export const deleteContactController = async (req, res) => {
   const { contactId } = req.params;
-  const contact = await deleteContact(contactId);
+  const { _id: userId } = req.user;
+  const contact = await deleteContact(contactId, userId);
 
   if (!contact) {
     throw createHttpError(404, 'Contact not found');
   }
 
-  if (contact.userId.toString() !== req.user._id.toString()) {
+  if (contact.userId.toString() !== userId.toString()) {
     throw createHttpError(403, 'Contact is not allowed');
   }
 
